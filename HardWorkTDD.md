@@ -14,14 +14,13 @@
 > using a dedicated test database might be more appropriate.
 > - If you want to test the actual SQL queries and their results but don't need a full-fledged database, 
 > using an in-memory or temporary database could be a suitable option.
-
 <hr>
-<br>
-Итак, согласно _ChatGPT_, сначала реализуем mocking тестирование, 
+
+Итак, согласно *ChatGPT*, сначала реализуем mocking тестирование, 
 а потом, когда будут актуальные SQL-запросы, сможем реализовать тесты и для них.
 
 <br>
-Пример теста для клиента базы PostgreSQL:
+- Пример теста для клиента базы PostgreSQL:
 
 ```python
 import unittest
