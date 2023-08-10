@@ -67,25 +67,26 @@ class Program:
         self.running: bool = False
 
 	def parse_command(self) -> None:
-        command_str = self.command_str_list[self.current_command]
-        parsed = command_str.split(" ", 1)
-        if len(parsed) == 1 and parsed[0].isdigit():
-            pass
-        # Case of mark
-        elif len(parsed) == 1 and parsed[0] in allowed_commands_no_args:
-            match parsed[0]:
-                case "READ":
-                    self.do_read()
-            # MORE CODE
-	...
+		command_str = self.command_str_list[self.current_command]
+		parsed = command_str.split(" ", 1)
+		if len(parsed) == 1 and parsed[0].isdigit():
+		    pass
+		# Case of mark
+		elif len(parsed) == 1 and parsed[0] in allowed_commands_no_args:
+		    match parsed[0]:
+			case "READ":
+			    self.do_read()
+		    # MORE CODE
+		...
+
 	def do_load(self, args: str) -> None:
-        try:
-            str_value, str_address = args.split(",")
-        except ValueError:
-            raise NonValidCommand(f"\"{args}\" are invalid arguments for LOAD")
-        value = self.parse_const_arg(str_value)
-        address = self.parse_address_arg(str_address)
-        self.command_cls.load(self.reg, value, address)
+	        try:
+	            str_value, str_address = args.split(",")
+	        except ValueError:
+	            raise NonValidCommand(f"\"{args}\" are invalid arguments for LOAD")
+	        value = self.parse_const_arg(str_value)
+	        address = self.parse_address_arg(str_address)
+	        self.command_cls.load(self.reg, value, address)
 ```
 
 Хотя по идее это будет нарушением принципа `SRP`, возможно класс `Program` мог бы реализовывать логику команд самостоятельно, так как он обладает всеми необходимыми знаниями для этого.
@@ -112,14 +113,14 @@ class Program:
         self.running: bool = False
 
 	 def load(self, reg: Register, value: numeric, address: int) -> None:
-        try:
-            str_value, str_address = args.split(",")
-        except ValueError:
-            raise NonValidCommand(f"\"{args}\" are invalid arguments for LOAD")
-        value = self.parse_const_arg(str_value)
-        address = self.parse_address_arg(str_address)
-        self.command_cls.load(self.reg, value, address)
-        self.reg[address] = value
+	        try:
+	            str_value, str_address = args.split(",")
+	        except ValueError:
+	            raise NonValidCommand(f"\"{args}\" are invalid arguments for LOAD")
+	        value = self.parse_const_arg(str_value)
+	        address = self.parse_address_arg(str_address)
+	        self.command_cls.load(self.reg, value, address)
+	        self.reg[address] = value
 		...
 ```
 
