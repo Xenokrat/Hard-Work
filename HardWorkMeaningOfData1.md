@@ -80,7 +80,7 @@ class Program:
         self.current_command = current_command
         self.running: bool = False
 
- def parse_command(self) -> None:
+    def parse_command(self) -> None:
         command_str = self.command_str_list[self.current_command]
         parsed = command_str.split(" ", 1)
         if len(parsed) == 1 and parsed[0].isdigit():
@@ -91,8 +91,8 @@ class Program:
                 case "READ":
                     self.do_read()
             # MORE CODE
- ...
- def do_load(self, args: str) -> None:
+    ...
+    def do_load(self, args: str) -> None:
         try:
             str_value, str_address = args.split(",")
         except ValueError:
@@ -125,7 +125,7 @@ class Program:
         self.current_command = current_command
         self.running: bool = False
 
-  def load(self, reg: Register, value: numeric, address: int) -> None:
+    def load(self, reg: Register, value: numeric, address: int) -> None:
         try:
             str_value, str_address = args.split(",")
         except ValueError:
@@ -134,7 +134,7 @@ class Program:
         address = self.parse_address_arg(str_address)
         self.command_cls.load(self.reg, value, address)
         self.reg[address] = value
-  ...
+        ...
 ```
 
 ### Выводы по примеру 2
@@ -149,4 +149,3 @@ class Program:
 Главное помнить, что это почти всегда trade-off: более удобная модель данных получается за счет потери гибкости, или дополнительных издержек на поддержание более плотно связанной структуры.
 
 Нужно всегда стремиться оценить получаемые плюсы и минусы, а также контекст при принятии решения о том, чтобы денормализовать отношения между объектами.
-
