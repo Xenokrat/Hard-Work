@@ -13,13 +13,13 @@
 class RamMachine(QWidget):
 
  def new(self) -> None:
-  self.ui.col_commands.clear()
-  self.ui.col_itape.clear()
-  self.program.current_command = 0
-  self.program.input_tape.current_cell = 0
-  self.set_or_update_program()
-  self.program.output_tape.clear()
-  self.update_ui()
+   self.ui.col_commands.clear()
+   self.ui.col_itape.clear()
+   self.program.current_command = 0
+   self.program.input_tape.current_cell = 0
+   self.set_or_update_program()
+   self.program.output_tape.clear()
+   self.update_ui()
 ```
 
 Такой подход может быть чреват ошибками. Например, можно "забыть" сбросить какое-то из значений, или порядок очистки также может привести к неожиданным и трудно отлавливаем ошибкам (когда функция сброса изменяет одно и тоже значение).
@@ -31,16 +31,16 @@ class RamMachine(QWidget):
 class RamMachine(QWidget):
 
  def new(self) -> None:
-  self.program = Program(
-            command_cls=Commands,
-            reg=Register({}),
-            input_tape=InputTape([]),
-            output_tape=OutputTape(),
-            command_str_list=[],
-            current_command=0,
-        )
-        self.ui = Ui_Form()
-        self.ui.setupUi(self)
+   self.program = Program(
+       command_cls=Commands,
+       reg=Register({}),
+       input_tape=InputTape([]),
+       output_tape=OutputTape(),
+       command_str_list=[],
+       current_command=0,
+   )
+       self.ui = Ui_Form()
+       self.ui.setupUi(self)
 ```
 
 ### Выводы 1
@@ -60,7 +60,7 @@ class RamMachine(QWidget):
 # Пример одного из запросов, где используется по ссылки существующая сессия БД
 @log.timing_decorator("CREATE: en category tmp table")
     def create_category_table(self) -> None:
-  self.process_config.session.execute(self.create_category_query)
+      self.process_config.session.execute(self.create_category_query)
 ```
 
 Создание под каждый отчет отдельного подключения позволило избежать проблем с подключениями и перейти затем к асинхронным запросам к БД.
@@ -70,11 +70,11 @@ class RamMachine(QWidget):
 ```python
 @log.timing_decorator("CREATE: en category tmp table")
     async def create_category_table(self) -> None:
- # Создаем вместо этого каждый раз новую сессию
-        async with make_session(
+    # Создаем вместо этого каждый раз новую сессию
+    async with make_session(
          self.process_config.engine, is_async=True
      ) as asession:
-            await asession.execute(self.create_category_query)
+        await asession.execute(self.create_category_query)
 ```
 
 ### Выводы 2
@@ -89,12 +89,12 @@ class RamMachine(QWidget):
 
 ```python
 def main() -> None:
- # Создаем клиента для получения сообщений о результатах мониторинга
- slack_message_client = SlackWebhookClient(web_hook=SLACK_WEBHOOK)
- # Каждый из мониторингов получает инстанс клиента
- # в данном случае получается, что клиент у всех будет общий
- last_upd_monitoring = LastRawUpdMonitoring(postgresql_db, slack_message_client)
- coutry_monitoring = CountryMonitoring(clickhouse_db, slack_message_client)
+  # Создаем клиента для получения сообщений о результатах мониторинга
+  slack_message_client = SlackWebhookClient(web_hook=SLACK_WEBHOOK)
+  # Каждый из мониторингов получает инстанс клиента
+  # в данном случае получается, что клиент у всех будет общий
+  last_upd_monitoring = LastRawUpdMonitoring(postgresql_db, slack_message_client)
+  coutry_monitoring = CountryMonitoring(clickhouse_db, slack_message_client)
 ```
 
 Проблема в том, что в примере вверху создается только один объект Клиента (т.е. получателя сообщений). Далее получилось так, что клиенту нужно было иметь дополнительное внутреннее состояние, такое как было ли сообщение успешно отправлено.
@@ -104,9 +104,9 @@ def main() -> None:
 ```python
 class SlackWebhookClient(Client):
     def __init__(self, **kwargs) -> None:
-        super().__init__(**kwargs)
-        self.web_hook = kwargs['web_hook']
-  is_sended: Dict[Monitoring, self] = {}
+       super().__init__(**kwargs)
+       self.web_hook = kwargs['web_hook']
+       is_sended: Dict[Monitoring, self] = {}
 ```
 
 - Изменения
