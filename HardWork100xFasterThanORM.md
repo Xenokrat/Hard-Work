@@ -13,9 +13,9 @@
 date_str = "2023-09-01"
 date_str_table_name = "shelf20230901"
 raw_query = sqlalchemy.text(f"""
- CREATE TABLE IF NOT EXISTS partition_{date_str_table_name}
- PARTITION OF client.public.shelf_table
- FOR VALUES IN ('{date_str}')
+    CREATE TABLE IF NOT EXISTS partition_{date_str_table_name}
+    PARTITION OF client.public.shelf_table
+    FOR VALUES IN ('{date_str}')
 """)
 ```
 
@@ -34,11 +34,11 @@ raw_query = sqlalchemy.text(f"""
 
 ```python
 class NewsByCategory(ListView, MyMixin):
- ...
- def get_queryset(self):
-  return NewsModel.objects.filter(
-   category_id=self.kwargs["category_id"], is_published=True)
-  )
+    ...
+    def get_queryset(self):
+        return NewsModel.objects.filter(
+            category_id=self.kwargs["category_id"], is_published=True)
+        )
 ```
 
 Можно значительно улучшить этот запрос, включив в него опцию `select_related`, что позволяет получить все данные за один раз, вместо того, чтобы джойнить объекты по одному.
@@ -47,12 +47,12 @@ class NewsByCategory(ListView, MyMixin):
 
 ```python
 class NewsByCategory(ListView, MyMixin):
- ...
- def get_queryset(self):
-  return NewsModel.objects.filter(
-   category_id=self.kwargs["category_id"], is_published=True)
-   .select_related("category")
-  )
+...
+    def get_queryset(self):
+        return NewsModel.objects.filter(
+          category_id=self.kwargs["category_id"], is_published=True)
+          .select_related("category")
+        )
 ```
 
 Напишем "сырой" запрос в обход ORM.
@@ -111,42 +111,42 @@ class NewsByCategory(ListView, MyMixin):
 
 ```python
 def select_client1_brands():
- """
- Названия брендов для Клиента
- """
- all_brands = (
-  list(client1_brands
-  .union(platform1_categories_brands)
-  .union(platform2_categories_brands))
- )
- query = (
-  sa.select([brand.c.brand_name, brand.c.brand_id])
-  .select_from(brand)
-  .where(brand.c.brand_id.in_(all_brands))
- )
- return query
+    """
+    Названия брендов для Клиента
+    """
+    all_brands = (
+        list(client1_brands
+        .union(platform1_categories_brands)
+        .union(platform2_categories_brands))
+    )
+    query = (
+        sa.select([brand.c.brand_name, brand.c.brand_id])
+        .select_from(brand)
+        .where(brand.c.brand_id.in_(all_brands))
+    )
+    return query
 ```
 
 2. Пример преобразованного запроса
 
 ```python
 def select_client1_brands():
- """
- Названия брендов для Клиента
- """
- query = """
-  SELECT brand_name, brand_id 
-  FROM brand WHERE brand_id IN (
-    SELECT brand_id 
-    FROM client1_brands 
-    UNION 
-    SELECT brand_id 
-    FROM platform1_categories_brands 
-    UNION SELECT brand_id 
-    FROM platform2_categories_brands
-  )
- """
- return query
+    """
+    Названия брендов для Клиента
+    """
+    query = """
+        SELECT brand_name, brand_id 
+        FROM brand WHERE brand_id IN (
+        SELECT brand_id 
+        FROM client1_brands 
+        UNION 
+        SELECT brand_id 
+        FROM platform1_categories_brands 
+        UNION SELECT brand_id 
+        FROM platform2_categories_brands
+        )
+    """
+    return query
 ```
 
 Далее, если запустить 2 функции выше в цикле на множественное выполнение, то получим следующие результаты:
@@ -157,13 +157,16 @@ def select_client1_brands():
 
 ## Выводы
 
-В целом по всем примерам ORM начинает проигрывать написанным вручную SQL запросам только тогда, когда идет множество отдельных обращений к БД. В таких случаях ORM нужно доп.время чтобы "скомпилировать" (в документации SQLAlchemy используют слово `compile`) код в реляционную раскладку (что происходит в несколько этапов, например, параметры "встраиваются" на отдельном шаге).
+В целом по всем примерам ORM начинает проигрывать написанным вручную SQL запросам только тогда, когда идет множество отдельных обращений к БД. 
+В таких случаях ORM нужно доп.время чтобы "скомпилировать" (в документации SQLAlchemy используют слово `compile`) код в реляционную раскладку (что происходит в несколько этапов, например, параметры "встраиваются" на отдельном шаге).
 Для единичных, пусть даже больших и сложных запросов, разница по времени несущественная.
+
 Я думаю, что проблема, описанная в этом занятии характерна для людей, которые занимаются в Web-разработке, в то время как я в основном пишу/поддерживаю ETL скрипты для данных.
 Так или иначе, мне приходится взаимодействовать с ORM (`SQLAlchemy`) так как система контроля миграций (`alembic`) основана на ней.
 Но за пределами этого изначально мне было значительно проще использовать "сырой" SQL запрос, так как на нем легче сформулировать сложную логику с множеством джойнов, оконных функций и т.д., плюс в результате работает немного быстрее, чем через ORM.
 ORM насколько я вижу, вообще не дает практически никакого выигрыша (хотя в `SQLAlchemy` есть множество других полезных инструментов, например сессии).
 Что касается передачи параметров, современные драйверы для БД, вроде `psycopg2` позволяют легко и безопасно параметризовать SQL запрос.
+
 Когда-то много использовали библиотеку `pandas` для составления клиентских отчетов, но со временем стало понятно, что практически всю ее работу при желании можно переместить на БД, OLAP БД вроде `Clickhouse` очень хорошо справляются с этим (мне кажется, `pandas` тут выступает схожим образом с какой-нибудь ORM, позволяя реализовывать логику манипулирования данными из языка Python).
 Теперь мы понимаем, что логику манипулирования данными стоит максимально переносить на БД.
 БД справляется с этим намного лучше, особенно когда дело касается параллельных запросов.
